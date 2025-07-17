@@ -32,15 +32,16 @@ def fetch_full_text(url):
             "elements": [{"selector": "body"}],
             "gotoOptions": {"waitUntil": "networkidle2"}
         }
+        # Call browserless directly with token embedded in URL
         response = requests.post(f"{BROWSERLESS_URL}/content", json=payload, timeout=30)
-
-        if response.status_code != 200:
-            return f"❌ Error {response.status_code}: {response.text[:200]}..."
-
+        response.raise_for_status()  # Raises 401/403 etc
         data = response.json()
-        return data.get("data", "No content found.")
+        return data.get("data", "")
+
+    except requests.exceptions.HTTPError as http_err:
+        return f"❌ Error {response.status_code}: {response.text}"
     except Exception as e:
-        return f"⚠️ Error fetching article content: {e}"
+        return f"❌ General error: {e}"
 
 # --- Main logic
 if submitted:
