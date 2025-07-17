@@ -30,32 +30,31 @@ def fetch_full_text(url):
         api_url = f"https://production-sfo.browserless.io/content?token={BROWSERLESS_TOKEN}"
         payload = {
             "url": url,
-            "gotoOptions": {"waitUntil": "domcontentloaded"},
-            "waitFor": "body",
-            "timeout": 30000  # 30 seconds
+            "gotoOptions": {
+                "waitUntil": "domcontentloaded"  # safer value than networkidle2
+            }
         }
-        response = requests.post(api_url, json=payload, timeout=35)
+        response = requests.post(api_url, json=payload, timeout=30)
         response.raise_for_status()
 
+        # Safely attempt to parse JSON only if content is non-empty
         if not response.content:
-            return "⚠️ No content returned from Browserless."
+            return "⚠️ Empty response from Browserless."
 
-        data = response.json()
+        try:
+            data = response.json()
+        except ValueError:
+            return "❌ Failed to parse JSON. Possibly non-HTML response or site blocked scraping."
+
         content = data.get("data", "")
-
-        if not content.strip():
-            return "⚠️ Empty content fetched. The site may have blocked the request."
-
-        return content.strip()
+        return content.strip() if content.strip() else "⚠️ No article content found."
 
     except requests.exceptions.Timeout:
-        return "❌ Timeout: Browserless took too long to respond."
+        return "❌ Timeout: Browserless request took too long."
     except requests.exceptions.HTTPError as http_err:
         return f"❌ HTTP {response.status_code}: {response.text}"
-    except ValueError:
-        return "❌ Error: Received invalid JSON from Browserless."
     except Exception as e:
-        return f"❌ General error: {e}"
+        return f"❌ Unexpected error: {e}"
 
 # --- Main logic
 if submitted:
