@@ -60,7 +60,7 @@ if submitted:
     data = response.json()
 
     # 🔍 TEMP LOGGING: Inspect the full response
-    st.write("🔍 Raw SerpAPI response:")
+    # st.write("🔍 Raw SerpAPI response:")
     st.json(data)
 
     articles = data.get("news_results", [])
