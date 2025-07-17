@@ -33,10 +33,14 @@ def fetch_full_text(url):
             "gotoOptions": {"waitUntil": "networkidle2"}
         }
         response = requests.post(f"{BROWSERLESS_URL}/content", json=payload, timeout=30)
+
+        if response.status_code != 200:
+            return f"❌ Error {response.status_code}: {response.text[:200]}..."
+
         data = response.json()
-        return data.get("data", "")
+        return data.get("data", "No content found.")
     except Exception as e:
-        return f"Error fetching article content: {e}"
+        return f"⚠️ Error fetching article content: {e}"
 
 # --- Main logic
 if submitted:
