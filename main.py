@@ -51,7 +51,8 @@ if submitted:
 
     # API call to SerpAPI
     params = {
-        "engine": "google_news",
+        "engine": "google",
+        "tbm": "nws",
         "q": query,
         "api_key": SERPAPI_KEY,
         "hl": "en",
