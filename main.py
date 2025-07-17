@@ -74,7 +74,9 @@ if submitted:
         st.success(f"✅ Found {len(articles)} articles.")
         for article in articles:
             st.markdown(f"### [{article['title']}]({article['link']})")
-            st.caption(f"Published: {article.get('date', 'Unknown')} | Source: {article.get('source', {}).get('name', 'N/A')}")
+            source = article.get("source")
+            source_name = source.get("name") if isinstance(source, dict) else source or "N/A"
+            st.caption(f"Published: {article.get('date', 'Unknown')} | Source: {source_name}")
 
             with st.spinner("🔍 Extracting full article..."):
                 full_text = fetch_full_text(article['link'])
