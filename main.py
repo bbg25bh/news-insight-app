@@ -4,9 +4,10 @@ import os
 from datetime import date
 from dotenv import load_dotenv
 
-# Load SerpAPI key
+# Load environment variables
 load_dotenv()
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")
+BROWSERLESS_URL = os.getenv("BROWSERLESS_URL")
 
 st.set_page_config(page_title="News Insight Generator", layout="centered")
 st.title("📰 News Insight Generator")
@@ -25,6 +26,20 @@ with st.form("news_input_form"):
     
     submitted = st.form_submit_button("Run Analysis")
 
+def fetch_full_text(url):
+    """Use Browserless to scrape full text from article URL"""
+    try:
+        payload = {
+            "url": url,
+            "elements": [{"selector": "body"}],
+            "gotoOptions": {"waitUntil": "networkidle2"}
+        }
+        response = requests.post(f"{BROWSERLESS_URL}/content", json=payload, timeout=30)
+        data = response.json()
+        return data.get("data", "")
+    except Exception as e:
+        return f"Error fetching article content: {e}"
+
 if submitted:
     query = f"{topic} {region}".strip()
     st.write(f"🔎 Searching news for: **{query}**")
@@ -35,19 +50,22 @@ if submitted:
         "api_key": SERPAPI_KEY,
         "hl": "en",
         "gl": "in",
-        "num": 20,
+        "num": 10,
         "tbs": f"cdr:1,cd_min:{start_date.strftime('%m/%d/%Y')},cd_max:{end_date.strftime('%m/%d/%Y')}"
     }
 
     response = requests.get("https://serpapi.com/search", params=params)
     data = response.json()
-
     articles = data.get("news_results", [])
+
     if not articles:
         st.warning("No articles found for this search.")
     else:
         st.success(f"✅ Found {len(articles)} articles.")
         for article in articles:
             st.markdown(f"### [{article['title']}]({article['link']})")
-            st.write(article.get("snippet", "No summary available."))
-            st.caption(f"Published: {article.get('date', 'Unknown')} | Source: {article.get('source')}")
+            st.caption(f"Published: {article.get('date', 'Unknown')} | Source: {article.get('source', {}).get('name', 'N/A')}")
+
+            with st.spinner("🔍 Extracting full article..."):
+                full_text = fetch_full_text(article['link'])
+                st.write(full_text[:1000] + "..." if full_text else "No content extracted.")
