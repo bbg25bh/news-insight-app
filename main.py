@@ -58,7 +58,7 @@ if submitted:
         "gl": "in",
         "num": 10,
         # "tbs": f"cdr:1,cd_min:{start_date.strftime('%m/%d/%Y')},cd_max:{end_date.strftime('%m/%d/%Y')}"
-# Remove custom date filter temporarily for testing
+        # Remove custom date filter temporarily for testing
     }
 
     response = requests.get("https://serpapi.com/search", params=params)
