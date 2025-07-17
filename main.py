@@ -8,7 +8,7 @@ BROWSERLESS_TOKEN = st.secrets["BROWSERLESS_TOKEN"]
 
 # --- Page setup
 st.set_page_config(page_title="News Insight Generator", layout="centered")
-st.title("📰 News Insight Generator"
+st.title("📰 News Insight Generator")
 st.markdown("Enter your search parameters below:")
 
 # --- Input form
