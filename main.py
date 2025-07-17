@@ -64,6 +64,11 @@ if submitted:
 
     response = requests.get("https://serpapi.com/search", params=params)
     data = response.json()
+
+    # 🔍 TEMP LOGGING: Inspect the full response
+    st.write("🔍 Raw SerpAPI response:")
+    st.json(data)
+
     articles = data.get("news_results", [])
 
     if not articles:
