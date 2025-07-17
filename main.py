@@ -27,16 +27,14 @@ with st.form("news_input_form"):
 # --- Function to fetch full article content using Browserless
 def fetch_full_text(url):
     try:
-        payload = {
-            "url": url,
-            "elements": [{"selector": "body"}],
-            "gotoOptions": {"waitUntil": "networkidle2"}
-        }
         api_url = f"https://production-sfo.browserless.io/content?token={BROWSERLESS_TOKEN}"
+        payload = {
+            "url": url
+        }
         response = requests.post(api_url, json=payload, timeout=30)
         response.raise_for_status()
         data = response.json()
-        return data.get("data", "")
+        return data.get("text", "")  # ✅ Correct key: 'text' contains full content
     except requests.exceptions.HTTPError as http_err:
         return f"❌ HTTP {response.status_code}: {response.text}"
     except Exception as e:
