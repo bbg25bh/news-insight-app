@@ -4,11 +4,11 @@ from datetime import date  # ✅ Fix 1: Needed for date inputs
 
 # Load secrets
 SERPAPI_KEY = st.secrets["SERPAPI_KEY"]
-BROWSERLESS_URL = st.secrets["BROWSERLESS_URL"]
+BROWSERLESS_TOKEN = st.secrets["BROWSERLESS_TOKEN"]
 
 # --- Page setup
 st.set_page_config(page_title="News Insight Generator", layout="centered")
-st.title("📰 News Insight Generator")
+st.title("📰 News Insight Generator"
 st.markdown("Enter your search parameters below:")
 
 # --- Input form
@@ -32,14 +32,13 @@ def fetch_full_text(url):
             "elements": [{"selector": "body"}],
             "gotoOptions": {"waitUntil": "networkidle2"}
         }
-        # Call browserless directly with token embedded in URL
-        response = requests.post(f"{BROWSERLESS_URL}/content", json=payload, timeout=30)
-        response.raise_for_status()  # Raises 401/403 etc
+        api_url = f"https://production-sfo.browserless.io/content?token={BROWSERLESS_TOKEN}"
+        response = requests.post(api_url, json=payload, timeout=30)
+        response.raise_for_status()
         data = response.json()
         return data.get("data", "")
-
     except requests.exceptions.HTTPError as http_err:
-        return f"❌ Error {response.status_code}: {response.text}"
+        return f"❌ HTTP {response.status_code}: {response.text}"
     except Exception as e:
         return f"❌ General error: {e}"
 
