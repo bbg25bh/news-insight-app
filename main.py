@@ -1,13 +1,7 @@
 import streamlit as st
 import requests
-import os
-from datetime import date
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
-SERPAPI_KEY = os.getenv("SERPAPI_KEY")
-BROWSERLESS_URL = os.getenv("BROWSERLESS_URL")
+SERPAPI_KEY = st.secrets["SERPAPI_KEY"]
+BROWSERLESS_URL = st.secrets["BROWSERLESS_URL"]
 
 st.set_page_config(page_title="News Insight Generator", layout="centered")
 st.title("📰 News Insight Generator")
