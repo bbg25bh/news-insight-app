@@ -26,8 +26,8 @@ with st.form("news_input_form"):
     
     submitted = st.form_submit_button("Run Analysis")
 
+# --- Function to fetch full article content
 def fetch_full_text(url):
-    """Use Browserless to scrape full text from article URL"""
     try:
         payload = {
             "url": url,
@@ -40,13 +40,16 @@ def fetch_full_text(url):
     except Exception as e:
         return f"Error fetching article content: {e}"
 
+# --- Logic triggered on form submit
 if submitted:
     query_parts = [topic.strip()]
-if region.strip().lower() not in topic.strip().lower():
-    query_parts.append(region.strip())
-query = " ".join(query_parts)
+    if region.strip() and region.strip().lower() not in topic.strip().lower():
+        query_parts.append(region.strip())
+
+    query = " ".join(query_parts)
     st.write(f"🔎 Searching news for: **{query}**")
-    
+
+    # API call to SerpAPI
     params = {
         "engine": "google_news",
         "q": query,
