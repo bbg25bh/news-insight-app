@@ -1,10 +1,15 @@
 import streamlit as st
+import requests
+import os
 from datetime import date
+from dotenv import load_dotenv
+
+# Load SerpAPI key
+load_dotenv()
+SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 
 st.set_page_config(page_title="News Insight Generator", layout="centered")
-
 st.title("📰 News Insight Generator")
-
 st.markdown("Enter your search parameters below:")
 
 # --- Input form
@@ -21,7 +26,28 @@ with st.form("news_input_form"):
     submitted = st.form_submit_button("Run Analysis")
 
 if submitted:
-    st.success("✔️ Input received! Querying SerpAPI next...")
-    st.write(f"🔎 **Query:** {topic} | 📍 Region: {region or 'Global'}")
-    st.write(f"📅 **Date Range:** {start_date} to {end_date}")
-    st.info("🛠️ Backend integration with SerpAPI & Gemini coming next.")
+    query = f"{topic} {region}".strip()
+    st.write(f"🔎 Searching news for: **{query}**")
+    
+    params = {
+        "engine": "google_news",
+        "q": query,
+        "api_key": SERPAPI_KEY,
+        "hl": "en",
+        "gl": "in",
+        "num": 20,
+        "tbs": f"cdr:1,cd_min:{start_date.strftime('%m/%d/%Y')},cd_max:{end_date.strftime('%m/%d/%Y')}"
+    }
+
+    response = requests.get("https://serpapi.com/search", params=params)
+    data = response.json()
+
+    articles = data.get("news_results", [])
+    if not articles:
+        st.warning("No articles found for this search.")
+    else:
+        st.success(f"✅ Found {len(articles)} articles.")
+        for article in articles:
+            st.markdown(f"### [{article['title']}]({article['link']})")
+            st.write(article.get("snippet", "No summary available."))
+            st.caption(f"Published: {article.get('date', 'Unknown')} | Source: {article.get('source')}")
