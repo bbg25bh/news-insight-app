@@ -41,7 +41,10 @@ def fetch_full_text(url):
         return f"Error fetching article content: {e}"
 
 if submitted:
-    query = f"{topic} {region}".strip()
+    query_parts = [topic.strip()]
+if region.strip().lower() not in topic.strip().lower():
+    query_parts.append(region.strip())
+query = " ".join(query_parts)
     st.write(f"🔎 Searching news for: **{query}**")
     
     params = {
